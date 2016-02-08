@@ -1,0 +1,7 @@
+<?php if ($block->getMethod()->getDescription()): ?>
+    <dl class="items twocheckout description" id="payment_form_<?php echo $block->escapeHtml($block->getMethodCode()) ?>" style="display:none;">
+        <?php if ($block->getMethod()->getDescription()): ?>
+            <dd class="content"><?php echo $block->escapeHtml($block->getMethod()->getDescription()) ?></dd>
+        <?php endif; ?>
+    </dl>
+<?php endif; ?>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <tco_checkout>
+                <active>1</active>
+                <model>Tco\Checkout\Model\Checkout</model>
+                <title>Credit Card and Paypal</title>
+                <order_status>pending</order_status>
+                <merchant_id />
+                <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <cctypes>AE,VI,MC,DI,JCB,DC</cctypes>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0.01</min_order_total>
+                <redirect_url>tco/standard/redirect</redirect_url>
+                <return_url>tco/standard/return</return_url>
+                <cancel_url>tco/standard/cancel</cancel_url>
+                <cgi_url_sandbox>https://sandbox.2checkout.com/checkout/purchase</cgi_url_sandbox>
+                <cgi_url>https://www.2checkout.com/checkout/purchase</cgi_url>
+            </tco_checkout>
+        </payment>
+    </default>
+</config>

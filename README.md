@@ -11,7 +11,7 @@
 2. Click the **Account** tab and **Site Management** subcategory.
 3. Under **Direct Return** select **Header Redirect**.
 4. Enter your **Secret Word**._(Must be the same value entered in your Magento admin.)_
-5. Set the **Approved URL** to https://www.yourdomain.com/tco/standard/redirect _(Replace https://www.yourstore.com with the actual URL to your store.)_
+5. Set the **Approved URL** to https://www.yourstore.com/tco/standard/response _(Replace https://www.yourstore.com with the actual URL to your store.)_
 6. Click **Save Changes**.
 
 #### Magento Settings

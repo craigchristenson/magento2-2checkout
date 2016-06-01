@@ -7,7 +7,8 @@
                 <active>1</active>
                 <model>Tco\Checkout\Model\Checkout</model>
                 <title>Credit Card and Paypal</title>
-                <order_status>pending</order_status>
+                <order_status>processing</order_status>
+                <inline>0</inline>
                 <merchant_id />
                 <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <cctypes>AE,VI,MC,DI,JCB,DC</cctypes>

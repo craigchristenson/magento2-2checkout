@@ -7,11 +7,15 @@ class Redirect extends \Tco\Checkout\Controller\Checkout
 
     public function execute()
     {
-        $order = $this->getOrder();
-        if ($order->getBillingAddress())
+        $quote = $this->getQuote();
+        $email = $this->getRequest()->getParam('email');
+        if (false == $this->getCustomerSession()->isLoggedIn()) {
+            $quote->setCustomerEmail($email);
+        }
+        if ($quote->getBillingAddress())
         {
             $this->getResponse()->setRedirect(
-                $this->getTwocheckoutModel()->buildCheckoutRequest($order)
+                $this->getPaymentMethod()->buildCheckoutRequest($quote)
             );
         }
         else

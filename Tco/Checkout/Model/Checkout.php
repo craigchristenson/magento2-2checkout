@@ -2,7 +2,7 @@
 
 namespace Tco\Checkout\Model;
 
-use Tco\Checkout\Helper\Checkout as CheckoutHelper;
+use Magento\Quote\Model\Quote\Payment;
 
 class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -28,6 +28,8 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_formBlockType = 'Tco\Checkout\Block\Form\Checkout';
     protected $_infoBlockType = 'Tco\Checkout\Block\Info\Checkout';
 
+    protected $orderSender;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -36,9 +38,11 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Tco\Checkout\Helper\Checkout $helper
+        \Tco\Checkout\Helper\Checkout $helper,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->helper = $helper;
+        $this->orderSender = $orderSender;
         parent::__construct(
             $context,
             $registry,
@@ -73,18 +77,19 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         return true;
     }
 
-    public function buildCheckoutRequest($order)
+    public function buildCheckoutRequest($quote)
     {
-        $billing_address = $order->getBillingAddress();
-        $shipping_address = $order->getShippingAddress();
+        $billing_address = $quote->getBillingAddress();
+        
+//        $shipping_address = $quote->getShippingAddress();
 
         $params = array();
 
         $params["sid"]                  = $this->getConfigData("merchant_id");
-        $params["merchant_order_id"]    = $order->getRealOrderId();
-        $params["cart_order_id"]        = $order->getRealOrderId();
-        $params["currency_code"  ]      = $order->getOrderCurrencyCode();
-        $params["total"]                = round($order->getGrandTotal(), 2);
+        $params["merchant_order_id"]    = $quote->getId();
+        $params["cart_order_id"]        = $quote->getId();
+        $params["currency_code"  ]      = $quote->getOrderCurrencyCode();
+        $params["total"]                = round($quote->getGrandTotal(), 2);
         $params["card_holder_name"]     = $billing_address->getName();
         $params["street_address"]       = $billing_address->getStreet()[0];
         if (count($billing_address->getStreet()) > 1) {
@@ -94,7 +99,7 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $params["state"]                = $billing_address->getRegion();
         $params["zip"]                  = $billing_address->getPostcode();
         $params["country"]              = $billing_address->getCountryId();
-        $params["email"]                = $order->getCustomerEmail();
+        $params["email"]                = $quote->getCustomerEmail();
         $params["phone"]                = $billing_address->getTelephone();
         $params["return_url"]           = $this->getCancelUrl();
         $params["x_receipt_link_url"]   = $this->getReturnUrl();
@@ -122,6 +127,23 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         return $result;
     }
 
+    public function postProcessing(\Magento\Sales\Model\Order $order, \Magento\Framework\DataObject $payment, $response) {
+        // Update payment details
+        $payment->setTransactionId($response['invoice_id']);
+        $payment->setIsTransactionClosed(0);
+        $payment->setTransactionAdditionalInfo('tco_order_number', $response['order_number']);
+        $payment->place();
+
+
+        // Update order status
+        $order->setStatus($this->getOrderStatus());
+        $order->setExtOrderId($response['order_number']);
+        $order->save();
+
+        // Send email confirmation
+        $this->orderSender->send($order);
+    }
+
     public function getRedirectUrl()
     {
         $url = $this->helper->getUrl($this->getConfigData('redirect_url'));
@@ -139,4 +161,18 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $url = $this->helper->getUrl($this->getConfigData('cancel_url'));
         return $url;
     }
+
+    public function getInline()
+    {
+        $value = $this->getConfigData('inline');
+        return $value;
+    }
+
+    public function getOrderStatus()
+    {
+        $value = $this->getConfigData('order_status');
+        return $value;
+    }
+
+
 }

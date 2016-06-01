@@ -7,28 +7,68 @@ class Response extends \Tco\Checkout\Controller\Checkout
 
     public function execute()
     {
-        $orderId = $this->getRequest()->getParam('cart_order_id');
-        $order = $this->getOrderById($orderId);
+        // Initialize return url
+        $returnUrl = $this->getCheckoutHelper()->getUrl('checkout');
 
-        $orderNumber = $this->getRequest()->getParam('order_number');
-        $orderTotal = number_format($order->getGrandTotal(), 2, '.', '');
-        $orderKey = $this->getRequest()->getParam('key');
+        try {
+            $paymentMethod = $this->getPaymentMethod();
+            
+            // Get payment method code
+            $code = $paymentMethod->getCode();
 
-        if($this->getTwocheckoutModel()->validateResponse($orderNumber, $orderTotal, $orderKey))
-        {
-            $order->setStatus($order::STATE_PROCESSING);
-            $order->setExtOrderId($orderNumber);
-            $returnUrl = $this->getCheckoutHelper()->getUrl('checkout/onepage/success');
+            // Get params from response
+            $params = $this->getRequest()->getParams();
+
+            // Get quote from session
+            $quoteId = $this->getQuote()->getId();
+            $quote = $this->_quote->load($quoteId);
+
+            // Setup params for hash check
+            $orderNumber = $params['order_number'];
+            $orderTotal = number_format($quote->getGrandTotal(), 2, '.', '');
+            $orderKey = $this->getRequest()->getParam('key');
+
+            // Create the order if the response passes validation
+            if ($paymentMethod->validateResponse($orderNumber, $orderTotal, $orderKey))
+            {
+                $returnUrl = $this->getCheckoutHelper()->getUrl('checkout/onepage/success');
+
+                if ($this->getCustomerSession()->isLoggedIn()) {
+                    $quote->setCheckoutMethod(\Magento\Checkout\Model\Type\Onepage::METHOD_CUSTOMER);
+                }
+                else {
+                    $quote->setCheckoutMethod(\Magento\Checkout\Model\Type\Onepage::METHOD_GUEST);
+                }
+
+                $quote->setCustomerEmail($params['email']);
+                $quote->setPaymentMethod($code);
+                $quote->getPayment()->importData(['method' => $code]);
+                $quote->save();
+
+                $this->initCheckout();
+                try {
+                    $this->cartManagement->placeOrder($this->_checkoutSession->getQuote()->getId(), $this->_quote->getPayment());
+                    $order = $this->getOrder();
+                    $payment = $order->getPayment();
+                    $paymentMethod->postProcessing($order, $payment, $params);
+                } catch (\Exception $e) {
+                    $this->messageManager->addExceptionMessage($e, __('We can\'t place the order.'));
+                }
+
+            }
+            else
+            {
+                $returnUrl = $this->getCheckoutHelper()->getUrl('checkout/onepage/failure');
+            }
+
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->messageManager->addExceptionMessage($e, $e->getMessage());
+        } catch (\Exception $e) {
+            $this->messageManager->addExceptionMessage($e, __('We can\'t place the order.'));
         }
-        else
-        {
-            $order->setStatus($order::STATE_PAYMENT_REVIEW);
-            $returnUrl = $this->getCheckoutHelper()->getUrl('checkout/onepage/failure');
-        }
-
-        $order->save();
 
         $this->getResponse()->setRedirect($returnUrl);
+
     }
 
 }

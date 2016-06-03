@@ -81,8 +81,6 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $billing_address = $quote->getBillingAddress();
         
-//        $shipping_address = $quote->getShippingAddress();
-
         $params = array();
 
         $params["sid"]                  = $this->getConfigData("merchant_id");
@@ -105,12 +103,7 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $params["x_receipt_link_url"]   = $this->getReturnUrl();
         $params["purchase_step"]        = "payment-method";
 
-        $url = $this->getConfigData('sandbox') ?
-            $this->getConfigData('cgi_url_sandbox') : $this->getConfigData('cgi_url');
-
-        $url .= '?' . http_build_query($params, '', '&amp;');
-
-        return $url;
+        return $params;
     }
 
     public function validateResponse($orderNumber, $total, $key)
@@ -144,6 +137,13 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $this->orderSender->send($order);
     }
 
+    public function getCgiUrl()
+    {
+        $url = $this->getConfigData('sandbox') ?
+            $this->getConfigData('cgi_url_sandbox') : $this->getConfigData('cgi_url');
+        return $url;
+    }
+    
     public function getRedirectUrl()
     {
         $url = $this->helper->getUrl($this->getConfigData('redirect_url'));

@@ -44,6 +44,11 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
      */
     protected $cartManagement;
 
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     */
+    protected $resultJsonFactory;
+
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
@@ -53,6 +58,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
      * @param \Tco\Checkout\Model\Checkout $paymentMethod
      * @param \Tco\Checkout\Helper\Checkout $checkoutHelper
      * @param \Magento\Quote\Api\CartManagementInterface $cartManagement
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
@@ -63,7 +69,8 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         \Psr\Log\LoggerInterface $logger,
         \Tco\Checkout\Model\Checkout $paymentMethod,
         \Tco\Checkout\Helper\Checkout $checkoutHelper,
-        \Magento\Quote\Api\CartManagementInterface $cartManagement
+        \Magento\Quote\Api\CartManagementInterface $cartManagement,
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
@@ -71,6 +78,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         $this->_paymentMethod = $paymentMethod;
         $this->_checkoutHelper = $checkoutHelper;
         $this->cartManagement = $cartManagement;
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->_logger = $logger;
         parent::__construct($context);
     }
@@ -146,12 +154,12 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         return $this->_checkoutSession;
     }
 
-    protected function getCustomerSession()
+    public function getCustomerSession()
     {
         return $this->_customerSession;
     }
 
-    protected function getPaymentMethod()
+    public function getPaymentMethod()
     {
         return $this->_paymentMethod;
     }

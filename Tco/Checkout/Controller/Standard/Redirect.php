@@ -14,9 +14,12 @@ class Redirect extends \Tco\Checkout\Controller\Checkout
         }
         if ($quote->getBillingAddress())
         {
-            $this->getResponse()->setRedirect(
-                $this->getPaymentMethod()->buildCheckoutRequest($quote)
-            );
+            $params = [];
+            $params["fields"] = $this->getPaymentMethod()->buildCheckoutRequest($quote);
+            $params["url"] = $this->getPaymentMethod()->getCgiUrl();
+            $params["inline"] = $this->getPaymentMethod()->getInline();
+            
+            return  $this->resultJsonFactory->create()->setData($params);
         }
         else
         {

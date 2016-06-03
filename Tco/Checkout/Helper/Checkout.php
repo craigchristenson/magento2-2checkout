@@ -17,13 +17,11 @@ class Checkout extends AbstractHelper
         Context $context,
         \Magento\Checkout\Model\Session $session,
         \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Quote\Model\QuoteManagement $quoteManagement
     ) {
         $this->session = $session;
         $this->quote = $quote;
         $this->quoteManagement = $quoteManagement;
-        $this->_eventManager = $eventManager;
         parent::__construct($context);
     }
 

@@ -2,11 +2,12 @@ define(
     [
         'jquery',
         'Magento_Checkout/js/view/payment/default',
+        'Magento_Checkout/js/action/set-billing-address',
         'Tco_Checkout/js/action/set-payment-method',
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, setPaymentMethodAction, selectPaymentMethodAction, additionalValidators) {
+    function ($, Component, setBillingAddressAction, setPaymentMethodAction, selectPaymentMethodAction, additionalValidators) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -16,7 +17,10 @@ define(
             continueTo2Checkout: function () {
                 if (this.validate() && additionalValidators.validate()) {
                     this.selectPaymentMethod();
-                    setPaymentMethodAction();
+                    var setBillingInfo = setBillingAddressAction();
+                    setBillingInfo.done(function() {
+                        setPaymentMethodAction();
+                    });
                     return false;
                 }
             }

@@ -51,6 +51,13 @@ class Response extends \Tco\Checkout\Controller\Checkout
                     $order = $this->getOrder();
                     $payment = $order->getPayment();
                     $paymentMethod->postProcessing($order, $payment, $params);
+
+                    if ($order) {
+                        $this->getCheckoutSession()->setLastOrderId($order->getId())
+                            ->setLastRealOrderId($order->getIncrementId())
+                            ->setLastOrderStatus($order->getStatus());
+                    }
+
                 } catch (\Exception $e) {
                     $this->messageManager->addExceptionMessage($e, __('We can\'t place the order.'));
                 }

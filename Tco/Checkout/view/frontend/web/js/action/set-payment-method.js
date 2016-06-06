@@ -2,6 +2,7 @@ define(
     [
         'jquery',
         'Magento_Checkout/js/model/quote',
+        'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/model/url-builder',
         'mage/storage',
         'Magento_Checkout/js/model/error-processor',
@@ -10,7 +11,7 @@ define(
         'Tco_Checkout/js/form/form-builder',
         'Tco_Checkout/js/form/direct'
     ],
-    function ($, quote, urlBuilder, storage, errorProcessor, customer, fullScreenLoader, formBuilder, direct) {
+    function ($, quote, customerData, urlBuilder, storage, errorProcessor, customer, fullScreenLoader, formBuilder, direct) {
         'use strict';
 
         return function (messageContainer) {
@@ -52,6 +53,7 @@ define(
                             initInline();
                             formBuilder.makeInline(form);
                         }
+                        customerData.invalidate(['cart']);
                         form.submit();
                     } else {
                         fullScreenLoader.stopLoader();

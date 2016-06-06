@@ -20,6 +20,11 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     protected $_customerSession;
 
     /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
+    
+    /**
      * @var \Psr\Log\LoggerInterface
      */
     protected $_logger;
@@ -54,6 +59,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Tco\Checkout\Model\Checkout $paymentMethod
      * @param \Tco\Checkout\Helper\Checkout $checkoutHelper
@@ -65,6 +71,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Psr\Log\LoggerInterface $logger,
         \Tco\Checkout\Model\Checkout $paymentMethod,
@@ -74,6 +81,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
         $this->_orderFactory = $orderFactory;
         $this->_paymentMethod = $paymentMethod;
         $this->_checkoutHelper = $checkoutHelper;

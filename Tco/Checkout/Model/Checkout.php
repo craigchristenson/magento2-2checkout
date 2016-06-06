@@ -84,8 +84,8 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $params = array();
 
         $params["sid"]                  = $this->getConfigData("merchant_id");
-        $params["merchant_order_id"]    = $quote->getId();
-        $params["cart_order_id"]        = $quote->getId();
+        $params["merchant_order_id"]    = $quote->getReservedOrderId();
+        $params["cart_order_id"]        = $quote->getReservedOrderId();
         $params["currency_code"  ]      = $quote->getOrderCurrencyCode();
         $params["total"]                = round($quote->getGrandTotal(), 2);
         $params["card_holder_name"]     = $billing_address->getName();
@@ -125,6 +125,7 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setTransactionId($response['invoice_id']);
         $payment->setIsTransactionClosed(0);
         $payment->setTransactionAdditionalInfo('tco_order_number', $response['order_number']);
+        $payment->setAdditionalInformation('tco_order_number', $response['order_number']);
         $payment->place();
 
 

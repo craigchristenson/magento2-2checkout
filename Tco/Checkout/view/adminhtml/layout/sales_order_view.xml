@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="payment_additional_info">
+            <block class="Tco\Checkout\Block\Adminhtml\Order\View\Info\TransactionDetails" name="twocheckout_transaction_details" template="Tco_Checkout::order/view/info/transaction_details.phtml" />
+        </referenceContainer>
+    </body>
+</page>

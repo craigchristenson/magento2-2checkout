@@ -17,6 +17,7 @@
                 <redirect_url>tco/standard/redirect</redirect_url>
                 <return_url>tco/standard/return</return_url>
                 <cancel_url>tco/standard/cancel</cancel_url>
+                <notification_url>tco/ins/notification</notification_url>
                 <cgi_url_sandbox>https://sandbox.2checkout.com/checkout/purchase</cgi_url_sandbox>
                 <cgi_url>https://www.2checkout.com/checkout/purchase</cgi_url>
             </tco_checkout>

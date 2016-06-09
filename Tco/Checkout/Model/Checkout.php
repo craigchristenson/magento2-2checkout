@@ -126,6 +126,7 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setIsTransactionClosed(0);
         $payment->setTransactionAdditionalInfo('tco_order_number', $response['order_number']);
         $payment->setAdditionalInformation('tco_order_number', $response['order_number']);
+        $payment->setAdditionalInformation('tco_order_status', 'approved');
         $payment->place();
 
 

@@ -11,6 +11,8 @@
                 <inline>0</inline>
                 <merchant_id />
                 <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <api_user />
+                <api_pass backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <cctypes>AE,VI,MC,DI,JCB,DC</cctypes>
                 <allowspecific>0</allowspecific>
                 <min_order_total>0.01</min_order_total>
@@ -20,6 +22,8 @@
                 <notification_url>tco/ins/notification</notification_url>
                 <cgi_url_sandbox>https://sandbox.2checkout.com/checkout/purchase</cgi_url_sandbox>
                 <cgi_url>https://www.2checkout.com/checkout/purchase</cgi_url>
+                <api_url_sandbox>https://sandbox.2checkout.com/api/</api_url_sandbox>
+                <api_url>https://www.2checkout.com/api/</api_url>
             </tco_checkout>
         </payment>
     </default>

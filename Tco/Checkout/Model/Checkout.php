@@ -9,7 +9,9 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'tco_checkout';
     protected $_code = self::CODE;
     protected $_isGateway = false;
-    protected $_isOffline = true;
+    protected $_isOffline = false;
+    protected $_canRefund = true;
+    protected $_isInitializeNeeded = false;
     protected $helper;
     protected $_minAmount = null;
     protected $_maxAmount = null;
@@ -28,6 +30,7 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_formBlockType = 'Tco\Checkout\Block\Form\Checkout';
     protected $_infoBlockType = 'Tco\Checkout\Block\Info\Checkout';
 
+    protected $httpClientFactory;
     protected $orderSender;
 
     public function __construct(
@@ -39,10 +42,13 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Tco\Checkout\Helper\Checkout $helper,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory
     ) {
         $this->helper = $helper;
         $this->orderSender = $orderSender;
+        $this->httpClientFactory = $httpClientFactory;
+
         parent::__construct(
             $context,
             $registry,
@@ -145,6 +151,13 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
             $this->getConfigData('cgi_url_sandbox') : $this->getConfigData('cgi_url');
         return $url;
     }
+
+    public function getApiUrl()
+    {
+        $url = $this->getConfigData('sandbox') ?
+            $this->getConfigData('api_url_sandbox') : $this->getConfigData('api_url');
+        return $url;
+    }
     
     public function getRedirectUrl()
     {
@@ -176,5 +189,56 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         return $value;
     }
 
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        if ($amount <= 0) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('Invalid amount for refund.'));
+        }
 
+        if (!$payment->getParentTransactionId()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('Invalid transaction ID.'));
+        }
+
+        $orderNumber = $payment->getAdditionalInformation('tco_order_number');
+
+        $args = array(
+            'sale_id' => $orderNumber,
+            'category' => 5,
+            'comment' => 'Refund issued by merchant.',
+            'amount' => $amount,
+            'currency' => 'vendor'
+        );
+
+        $client = $this->httpClientFactory->create();
+        $path = 'sales/refund_invoice';
+        $url = $this->getApiUrl();
+        $client->setUri($url . $path);
+        $client->setConfig(['maxredirects' => 0, 'timeout' => 30]);
+        $client->setAuth($this->getConfigData('api_user'), $this->getConfigData('api_pass'));
+
+        $client->setHeaders(
+           [
+               'Accept: application/json'
+           ]
+        );
+        $client->setParameterPost($args);
+        $client->setMethod(\Zend_Http_Client::POST);
+
+        try {
+            $response = $client->request();
+            $responseBody = json_decode($response->getBody(), true);
+            if (isset($responseBody['errors'])) {
+                $this->_logger->critical(sprintf('Error Refunding Invoice: "%s"', $responseBody['errors'][0]['message']));
+                throw new \Magento\Framework\Exception\LocalizedException(__($responseBody['errors'][0]['message']));
+            } elseif (!isset($responseBody['response_code']) || !isset($responseBody['response_message'])) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('Error refunding transaction.'));
+            } elseif ($responseBody['response_code'] != 'OK') {
+                throw new \Magento\Framework\Exception\LocalizedException(__($responseBody['response_message']));
+            }
+        } catch (\Exception $e) {
+            throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));
+        }
+
+        return $this;
+    }
 }

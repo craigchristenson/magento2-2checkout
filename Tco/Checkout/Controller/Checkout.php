@@ -20,6 +20,11 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     protected $_customerSession;
 
     /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
+    
+    /**
      * @var \Psr\Log\LoggerInterface
      */
     protected $_logger;
@@ -27,41 +32,79 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     /**
      * @var \Magento\Quote\Model\Quote
      */
-    protected $_quote = false;
+    protected $_quote;
 
-    protected $_twocheckoutModel;
+    /**
+     * @var \Tco\Checkout\Model\Checkout
+     */
+    protected $_paymentMethod;
 
+    /**
+     * @var \Tco\Checkout\Helper\Checkout
+     */
     protected $_checkoutHelper;
+
+    /**
+     * @var \Magento\Quote\Api\CartManagementInterface
+     */
+    protected $cartManagement;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     */
+    protected $resultJsonFactory;
 
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \Tco\Checkout\Model\Checkout $twocheckoutModel
+     * @param \Tco\Checkout\Model\Checkout $paymentMethod
      * @param \Tco\Checkout\Helper\Checkout $checkoutHelper
+     * @param \Magento\Quote\Api\CartManagementInterface $cartManagement
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Tco\Checkout\Model\Checkout $twocheckoutModel,
+        \Psr\Log\LoggerInterface $logger,
+        \Tco\Checkout\Model\Checkout $paymentMethod,
         \Tco\Checkout\Helper\Checkout $checkoutHelper,
-        \Psr\Log\LoggerInterface $logger
+        \Magento\Quote\Api\CartManagementInterface $cartManagement,
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
         $this->_orderFactory = $orderFactory;
-        $this->_logger = $logger;
-        $this->_twocheckoutModel = $twocheckoutModel;
+        $this->_paymentMethod = $paymentMethod;
         $this->_checkoutHelper = $checkoutHelper;
+        $this->cartManagement = $cartManagement;
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->_logger = $logger;
         parent::__construct($context);
     }
 
-
+    /**
+     * Instantiate quote and checkout
+     *
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function initCheckout()
+    {
+        $quote = $this->getQuote();
+        if (!$quote->hasItems() || $quote->getHasError()) {
+            $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
+            throw new \Magento\Framework\Exception\LocalizedException(__('We can\'t initialize checkout.'));
+        }
+    }
 
     /**
      * Cancel order, return quote to customer
@@ -109,7 +152,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     protected function getQuote()
     {
         if (!$this->_quote) {
-            $this->_quote = $this->_getCheckoutSession()->getQuote();
+            $this->_quote = $this->getCheckoutSession()->getQuote();
         }
         return $this->_quote;
     }
@@ -119,14 +162,14 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         return $this->_checkoutSession;
     }
 
-    protected function getCustomerSession()
+    public function getCustomerSession()
     {
         return $this->_customerSession;
     }
 
-    protected function getTwocheckoutModel()
+    public function getPaymentMethod()
     {
-        return $this->_twocheckoutModel;
+        return $this->_paymentMethod;
     }
 
     protected function getCheckoutHelper()

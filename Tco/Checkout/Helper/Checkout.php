@@ -9,12 +9,19 @@ use Magento\Framework\App\Helper\AbstractHelper;
 class Checkout extends AbstractHelper
 {
     protected $session;
+    protected $quote;
+    protected $quoteManagement;
+    protected $orderSender;
 
     public function __construct(
         Context $context,
-        \Magento\Checkout\Model\Session $session
+        \Magento\Checkout\Model\Session $session,
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement
     ) {
         $this->session = $session;
+        $this->quote = $quote;
+        $this->quoteManagement = $quoteManagement;
         parent::__construct($context);
     }
 

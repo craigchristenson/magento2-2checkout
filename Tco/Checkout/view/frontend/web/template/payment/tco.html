@@ -20,9 +20,7 @@
                 <button class="action primary checkout"
                         type="submit"
                         data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order')},
-                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        click: continueTo2Checkout,
                         enable: (getCode() == isChecked())
                         "
                         disabled>

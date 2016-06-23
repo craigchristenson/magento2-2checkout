@@ -12,6 +12,10 @@ define(
             {
                 type: 'tco_checkout',
                 component: 'Tco_Checkout/js/view/payment/method-renderer/tco-checkout'
+            },
+            {
+                type: 'tco_api',
+                component: 'Tco_Checkout/js/view/payment/method-renderer/tco-api'
             }
         );
         return Component.extend({});

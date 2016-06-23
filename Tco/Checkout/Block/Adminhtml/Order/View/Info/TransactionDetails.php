@@ -39,6 +39,9 @@ class TransactionDetails extends \Magento\Backend\Block\Template
      */
     protected function _toHtml()
     {
-        return ($this->getPayment()->getMethod() === \Tco\Checkout\Model\Checkout::CODE) ? parent::_toHtml() : '';
+        return (
+            $this->getPayment()->getMethod() === \Tco\Checkout\Model\Checkout::CODE ||
+            $this->getPayment()->getMethod() === \Tco\Checkout\Model\Api::CODE
+        ) ? parent::_toHtml() : '';
     }
 }

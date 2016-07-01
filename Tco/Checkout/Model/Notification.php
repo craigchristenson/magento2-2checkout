@@ -38,66 +38,74 @@ class Notification
      */
     protected $orderSender;
 
+    protected $_paymentMethod;
+
     /**
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Tco\Checkout\Model\Checkout $tcoCheckout
+     * @param \Tco\Checkout\Model\Api $tcoApi
      * @param OrderSender $orderSender
      */
     public function __construct(
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Tco\Checkout\Model\Checkout $tcoCheckout,
+        \Tco\Checkout\Model\Api $tcoApi,
         OrderSender $orderSender
-    ) {
+    )
+    {
         $this->_orderFactory = $orderFactory;
         $this->_tcoCheckout = $tcoCheckout;
+        $this->_tcoApi = $tcoApi;
         $this->orderSender = $orderSender;
     }
 
     public function processNotification($params)
     {
-        if ($this->_validateResponse($params['sale_id'], $params['invoice_id'], $params['md5_hash'])) {
-            $order = $this->_getOrder($params['vendor_order_id']);
-                if ($order) {
-                    try {
-                        $messageType = $params['message_type'];
-                        switch ($messageType) {
-                            case $this::ORDER_CREATED:
-                                $this->_processOrderCreated($params);
-                                break;
-                            case $this::INVOICE_STATUS_CHANGED:
-                                $this->_processInvoiceStatusChanged($params);
-                                break;
-                            case $this::FRAUD_STATUS_CHANGED:
-                                $this->_processFraudStatusChanged($params);
-                                break;
-                            case $this::REFUND_ISSUED:
-                                $this->_processRefundIssued($params);
-                                break;
-                            default:
-                                throw new Exception('Cannot handle INS message type for message: "%s".', $params['message_id']);
-                        }
-                    } catch (\Magento\Framework\Exception\LocalizedException $e) {
-                        $comment = $this->_createNotificationComment(sprintf('Error: "%s"', $e->getMessage()));
-                        $comment->save();
-                        throw $e;
+        $order = $this->_getOrder($params['vendor_order_id']);
+        if ($order) {
+            $this->setPaymentMethod($this->_paymentMethod = $order->getPayment()->getMethod());
+            if ($this->_validateResponse($params['sale_id'], $params['invoice_id'], $params['md5_hash'])) {
+                try {
+                    $messageType = $params['message_type'];
+                    switch ($messageType) {
+                        case $this::ORDER_CREATED:
+                            $this->_processOrderCreated($params);
+                            break;
+                        case $this::INVOICE_STATUS_CHANGED:
+                            $this->_processInvoiceStatusChanged($params);
+                            break;
+                        case $this::FRAUD_STATUS_CHANGED:
+                            $this->_processFraudStatusChanged($params);
+                            break;
+                        case $this::REFUND_ISSUED:
+                            $this->_processRefundIssued($params);
+                            break;
+                        default:
+                            throw new Exception('Cannot handle INS message type for message: "%s".', $params['message_id']);
                     }
-                } else {
-                    throw new Exception(sprintf('Could not locate order: "%s".', $params['vendor_order_id']));
+                } catch (\Magento\Framework\Exception\LocalizedException $e) {
+                    $comment = $this->_createNotificationComment(sprintf('Error: "%s"', $e->getMessage()));
+                    $comment->save();
+                    throw $e;
                 }
+            } else {
+                throw new Exception(sprintf('MD5 hash mismatch for 2Checkout notification message: "%s".', $params['message_id']));
+            }
         } else {
-            throw new Exception(sprintf('MD5 hash mismatch for 2Checkout notification message: "%s".', $params['message_id']));
+            throw new Exception(sprintf('Could not locate order: "%s".', $params['vendor_order_id']));
         }
     }
 
     public function _validateResponse($saleId, $invoiceId, $key)
     {
-        $secretWord = $this->_tcoCheckout->getConfigData('secret_word');
-        $merchantId = $this->_tcoCheckout->getConfigData('merchant_id');
-        $stringToHash = strtoupper(md5($saleId . $merchantId . $invoiceId . $secretWord));
-        if ($stringToHash != $key) {
-            $result = false;
-        } else {
-            $result = true;
+        $result = false;
+        if ($this->_paymentMethod) {
+            $secretWord = $this->_paymentMethod->getConfigData('secret_word');
+            $merchantId = $this->_paymentMethod->getConfigData('merchant_id');
+            $stringToHash = strtoupper(md5($saleId . $merchantId . $invoiceId . $secretWord));
+            if ($stringToHash == $key) {
+                $result = true;
+            }
         }
         return $result;
     }
@@ -121,13 +129,13 @@ class Notification
 
     protected function _processOrderCreated($params)
     {
-        $this->_order->setStatus($this->_tcoCheckout->getConfigData('order_approved_status'));
+        $this->_order->setStatus($this->_paymentMethod->getConfigData('order_approved_status'));
         if (!$this->_order->getEmailSent()) {
             $this->orderSender->send($this->_order);
         }
         $this->_order->save();
 
-        if ($this->_tcoCheckout->getConfigData('invoice_before_fraud_review')) {
+        if ($this->_paymentMethod->getConfigData('invoice_before_fraud_review')) {
             $this->_createInvoice($params);
         }
 
@@ -140,7 +148,7 @@ class Notification
     protected function _processInvoiceStatusChanged($params)
     {
         if ($params['invoice_status'] == $this::INVOICE_STATUS_DEPOSITED) {
-            if ($this->_tcoCheckout->getConfigData('invoice_when_captured')) {
+            if ($this->_paymentMethod->getConfigData('invoice_when_captured')) {
                 $this->_createInvoice($params);
             }
         }
@@ -162,7 +170,7 @@ class Notification
                 $payment = $this->_order->getPayment();
                 $payment->setIsTransactionApproved(true);
                 $this->_order->save();
-                if ($this->_tcoCheckout->getConfigData('invoice_after_fraud_review')) {
+                if ($this->_paymentMethod->getConfigData('invoice_after_fraud_review')) {
                     $this->_createInvoice($params);
                 }
                 break;
@@ -214,6 +222,17 @@ class Notification
             }
         } catch (Exception $e) {
             throw new Exception(sprintf('Error Creating Invoice: "%s"', $e->getMessage()));
+        }
+    }
+
+    protected function setPaymentMethod($code)
+    {
+        if ($code == \Tco\Checkout\Model\Api::CODE) {
+            $this->_paymentMethod = $this->_tcoApi;
+        } else if ($code == \Tco\Checkout\Model\Checkout::CODE) {
+            $this->_paymentMethod = $this->_tcoCheckout;
+        } else {
+            throw new \Magento\Framework\Exception\LocalizedException(__("Payment type not supported"));
         }
     }
 

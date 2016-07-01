@@ -4,7 +4,8 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="tco_config_provider" xsi:type="object">Tco\Checkout\Model\CheckoutConfigProvider</item>
+                <item name="tco_checkout_config_provider" xsi:type="object">Tco\Checkout\Model\CheckoutConfigProvider</item>
+                <item name="tco_api_config_provider" xsi:type="object">Tco\Checkout\Model\ApiConfigProvider</item>
             </argument>
         </arguments>
     </type>

@@ -25,6 +25,27 @@
                 <api_url_sandbox>https://sandbox.2checkout.com/api/</api_url_sandbox>
                 <api_url>https://www.2checkout.com/api/</api_url>
             </tco_checkout>
+            <tco_api>
+                <active>1</active>
+                <model>Tco\Checkout\Model\Api</model>
+                <payment_action>authorize</payment_action>
+                <title>Credit Card</title>
+                <order_status>processing</order_status>
+                <merchant_id />
+                <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <api_user />
+                <api_pass backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <publishable_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <private_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <cctypes>AE,VI,MC,DI,JCB,DC</cctypes>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0.01</min_order_total>
+                <notification_url>tco/ins/notification</notification_url>
+                <payment_api_url_sandbox>https://sandbox.2checkout.com/checkout/api/1/</payment_api_url_sandbox>
+                <payment_api_url>https://www.2checkout.com/checkout/api/1/</payment_api_url>
+                <api_url_sandbox>https://sandbox.2checkout.com/api/</api_url_sandbox>
+                <api_url>https://www.2checkout.com/api/</api_url>
+            </tco_api>
         </payment>
     </default>
 </config>

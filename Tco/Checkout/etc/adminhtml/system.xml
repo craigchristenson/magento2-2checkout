@@ -2,7 +2,7 @@
     <system>
         <section id="payment">
             <group id="tco_checkout" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>2Checkout</label>
+                <label>2Checkout Hosted</label>
                 <comment>
                     <![CDATA[<a href="https://www.2checkout.com/" target="_blank">Click here to sign up for a 2Checkout account!</a>]]>
                 </comment>
@@ -67,6 +67,79 @@
                     <comment>Leave empty to disable limit</comment>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Sort Order</label>
+                </field>
+            </group>
+            <group id="tco_api" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>2Checkout Payment API</label>
+                <comment>
+                    <![CDATA[<a href="https://www.2checkout.com/" target="_blank">Click here to sign up for a 2Checkout account!</a>]]>
+                </comment>
+                <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>
+                </field>
+                <field id="sandbox" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Sandbox Mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="merchant_id" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Merchant ID</label>
+                </field>
+                <field id="secret_word" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Secret Word</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="publishable_key" translate="label" type="obscure" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Publishable Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="private_key" translate="label" type="obscure" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Private Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="api_user" translate="label" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Admin API Username</label>
+                </field>
+                <field id="api_pass" translate="label" type="obscure" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Admin API Password</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+                <field id="invoice_before_fraud_review" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Invoice Before Fraud Review</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="invoice_after_fraud_review" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Invoice After Fraud Review</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="invoice_when_captured" translate="label" type="select" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Invoice On Capture</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment from Specific Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                    <comment>Leave empty to disable limit</comment>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Sort Order</label>
                 </field>
             </group>

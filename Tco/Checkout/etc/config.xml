@@ -17,7 +17,7 @@
                 <allowspecific>0</allowspecific>
                 <min_order_total>0.01</min_order_total>
                 <redirect_url>tco/standard/redirect</redirect_url>
-                <return_url>tco/standard/return</return_url>
+                <return_url>tco/standard/response</return_url>
                 <cancel_url>tco/standard/cancel</cancel_url>
                 <notification_url>tco/ins/notification</notification_url>
                 <cgi_url_sandbox>https://sandbox.2checkout.com/checkout/purchase</cgi_url_sandbox>

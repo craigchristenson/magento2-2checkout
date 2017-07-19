@@ -292,5 +292,10 @@ class Api extends \Magento\Payment\Model\Method\Cc
         return $url;
     }
 
+    public function getPublicKeyType()
+    {
+        $keyType = $this->getConfigData('sandbox') ? 'sandbox' : 'production';
+        return $keyType;
+    }
 
 }

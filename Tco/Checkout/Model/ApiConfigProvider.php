@@ -31,6 +31,7 @@ class ApiConfigProvider extends CcGenericConfigProvider
         $config = parent::getConfig();
         $config['payment']['tco_api']['sellerId'] = $this->methods[$this->_methodCode]->getSellerId();
         $config['payment']['tco_api']['publishableKey'] = $this->methods[$this->_methodCode]->getPublishableKey();
+        $config['payment']['tco_api']['publicKeyType'] = $this->methods[$this->_methodCode]->getPublicKeyType();
         $config['payment']['tco_api']['redirectUrl'] = $this->methods[$this->_methodCode]->getRedirectUrl();
         $config['payment']['tco_api']['processingError'] = '{"message":"Payment Authorization Failed: Please verify your information and try again, or try another payment method."}';
         return $config;

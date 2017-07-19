@@ -65,6 +65,7 @@ define(
 
                 var sellerId = this.getSellerId();
                 var publishableKey = this.getPublishableKey();
+                var publicKeyType = this.getPublicKeyType();
 
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
@@ -81,7 +82,7 @@ define(
                             expYear: self.creditCardExpYear()
                         };
 
-                        TCO.loadPubKey('sandbox', function() {
+                        TCO.loadPubKey(publicKeyType, function() {
                             TCO.requestToken(function(data) {
 
                                 self.paymentToken = data.response.token.token;
@@ -116,6 +117,9 @@ define(
             },
             getPublishableKey: function() {
                 return window.checkoutConfig.payment.tco_api.publishableKey;
+            },
+            getPublicKeyType: function() {
+                return window.checkoutConfig.payment.tco_api.publicKeyType;
             },
             isShowLegend: function() {
                 return true;

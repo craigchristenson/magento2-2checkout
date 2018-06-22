@@ -6,6 +6,7 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="tco_checkout_config_provider" xsi:type="object">Tco\Checkout\Model\CheckoutConfigProvider</item>
                 <item name="tco_api_config_provider" xsi:type="object">Tco\Checkout\Model\ApiConfigProvider</item>
+                <item name="tco_paypal_config_provider" xsi:type="object">Tco\Checkout\Model\PaypalConfigProvider</item>
             </argument>
         </arguments>
     </type>

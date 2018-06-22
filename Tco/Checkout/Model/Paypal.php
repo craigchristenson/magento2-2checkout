@@ -92,7 +92,7 @@ class Paypal extends \Magento\Payment\Model\Method\AbstractMethod
         $params["sid"]                  = $this->getConfigData("merchant_id");
         $params["merchant_order_id"]    = $quote->getReservedOrderId();
         $params["cart_order_id"]        = $quote->getReservedOrderId();
-        $params["currency_code"  ]      = $quote->getOrderCurrencyCode();
+        $params["currency_code"]        = $quote->getQuoteCurrencyCode();
         $params["total"]                = round($quote->getGrandTotal(), 2);
         $params["card_holder_name"]     = $billing_address->getName();
         $params["street_address"]       = $billing_address->getStreet()[0];

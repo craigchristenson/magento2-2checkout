@@ -51,7 +51,6 @@
                 <model>Tco\Checkout\Model\Paypal</model>
                 <title>Paypal Direct</title>
                 <order_status>processing</order_status>
-                <inline>0</inline>
                 <merchant_id />
                 <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <api_user />

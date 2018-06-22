@@ -178,12 +178,6 @@ class Paypal extends \Magento\Payment\Model\Method\AbstractMethod
         return $url;
     }
 
-    public function getInline()
-    {
-        $value = $this->getConfigData('inline');
-        return $value;
-    }
-
     public function getOrderStatus()
     {
         $value = $this->getConfigData('order_status');

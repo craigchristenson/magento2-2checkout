@@ -26,11 +26,6 @@ define(
                 email = customer.customerData.email;
             }
 
-            var initInline = function () {
-                $('#tco_lightbox_iframe').css('visibility', 'hidden');
-                $('#tco_lightbox').show();
-            };
-
             serviceUrl = window.checkoutConfig.payment.tco_paypal.redirectUrl+'?email='+email;
             fullScreenLoader.startLoader();
             
@@ -49,10 +44,6 @@ define(
                                 fields: response.fields
                             }
                         );
-                        if (response.inline === "1") {
-                            initInline();
-                            formBuilder.makeInline(form);
-                        }
                         customerData.invalidate(['cart']);
                         form.submit();
                     } else {

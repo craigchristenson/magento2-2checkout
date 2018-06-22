@@ -31,7 +31,6 @@ class Redirectpaypal extends \Tco\Checkout\Controller\Paypal
         $params = [];
         $params["fields"] = $this->getPaymentMethod()->buildCheckoutRequest($quote);
         $params["url"] = $this->getPaymentMethod()->getCgiUrl();
-        $params["inline"] = $this->getPaymentMethod()->getInline();
 
         return  $this->resultJsonFactory->create()->setData($params);
     }

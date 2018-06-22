@@ -46,6 +46,27 @@
                 <api_url_sandbox>https://sandbox.2checkout.com/api/</api_url_sandbox>
                 <api_url>https://www.2checkout.com/api/</api_url>
             </tco_api>
+            <tco_paypal>
+                <active>1</active>
+                <model>Tco\Checkout\Model\Paypal</model>
+                <title>Paypal Direct</title>
+                <order_status>processing</order_status>
+                <merchant_id />
+                <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <api_user />
+                <api_pass backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <cctypes>AE,VI,MC,DI,JCB,DC</cctypes>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0.01</min_order_total>
+                <redirect_url>tco/standard/redirectpaypal</redirect_url>
+                <return_url>tco/standard/responsepaypal</return_url>
+                <cancel_url>tco/standard/cancelpaypal</cancel_url>
+                <notification_url>tco/ins/notification</notification_url>
+                <cgi_url_sandbox>https://sandbox.2checkout.com/checkout/purchase</cgi_url_sandbox>
+                <cgi_url>https://www.2checkout.com/checkout/purchase</cgi_url>
+                <api_url_sandbox>https://sandbox.2checkout.com/api/</api_url_sandbox>
+                <api_url>https://www.2checkout.com/api/</api_url>
+            </tco_paypal>
         </payment>
     </default>
 </config>

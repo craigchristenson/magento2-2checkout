@@ -34,6 +34,11 @@ class Notification
     protected $_tcoCheckout;
 
     /**
+     * @var \Tco\Checkout\Model\Paypal
+     */
+    protected $_tcoPaypal;
+
+    /**
      * @var OrderSender
      */
     protected $orderSender;
@@ -44,18 +49,21 @@ class Notification
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Tco\Checkout\Model\Checkout $tcoCheckout
      * @param \Tco\Checkout\Model\Api $tcoApi
+     * @param \Tco\Checkout\Model\Paypal $tcoPaypal
      * @param OrderSender $orderSender
      */
     public function __construct(
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Tco\Checkout\Model\Checkout $tcoCheckout,
         \Tco\Checkout\Model\Api $tcoApi,
+        \Tco\Checkout\Model\Paypal $tcoPaypal,
         OrderSender $orderSender
     )
     {
         $this->_orderFactory = $orderFactory;
         $this->_tcoCheckout = $tcoCheckout;
         $this->_tcoApi = $tcoApi;
+        $this->_tcoPaypal = $tcoPaypal;
         $this->orderSender = $orderSender;
     }
 
@@ -231,6 +239,8 @@ class Notification
             $this->_paymentMethod = $this->_tcoApi;
         } else if ($code == \Tco\Checkout\Model\Checkout::CODE) {
             $this->_paymentMethod = $this->_tcoCheckout;
+        } else if ($code == \Tco\Checkout\Model\Paypal::CODE) {
+            $this->_paymentMethod = $this->_tcoPaypal;
         } else {
             throw new \Magento\Framework\Exception\LocalizedException(__("Payment type not supported"));
         }

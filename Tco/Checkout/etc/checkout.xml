@@ -8,5 +8,8 @@
         <method name="tco_api">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="tco_paypal">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
     </methods>
 </payment>

@@ -162,9 +162,9 @@ class Api extends \Magento\Payment\Model\Method\Cc
             $params["shippingAddress"]["country"]           = $shipping_address->getCountryId();
         }
 
-
-
-
+        if ($this->getConfigData('demo_mode')) {
+            $params["demo"] = true;
+        }
 
         $client = $this->_httpClientFactory->create();
         $path = $this->getConfigData('merchant_id') . "/rs/authService";

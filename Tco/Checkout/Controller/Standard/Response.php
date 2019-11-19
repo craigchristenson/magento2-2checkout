@@ -24,7 +24,7 @@ class Response extends \Tco\Checkout\Controller\Checkout
             $quote = $this->_quote->load($quoteId);
 
             // Setup params for hash check
-            $orderNumber = $params['order_number'];
+            $orderNumber = $paymentMethod->getConfigData('demo_mode') ? '1' : $params['order_number'];
             $orderTotal = number_format($quote->getGrandTotal(), 2, '.', '');
             $orderKey = $this->getRequest()->getParam('key');
 

@@ -7,6 +7,7 @@
                 <active>1</active>
                 <model>Tco\Checkout\Model\Checkout</model>
                 <title>Credit Card and Paypal</title>
+                <demo_mode>0</demo_mode>
                 <order_status>processing</order_status>
                 <inline>0</inline>
                 <merchant_id />
@@ -30,6 +31,7 @@
                 <model>Tco\Checkout\Model\Api</model>
                 <payment_action>authorize</payment_action>
                 <title>Credit Card</title>
+                <demo_mode>0</demo_mode>
                 <order_status>processing</order_status>
                 <merchant_id />
                 <secret_word backend_model="Magento\Config\Model\Config\Backend\Encrypted" />

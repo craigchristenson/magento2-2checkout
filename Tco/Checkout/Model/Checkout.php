@@ -109,6 +109,10 @@ class Checkout extends \Magento\Payment\Model\Method\AbstractMethod
         $params["x_receipt_link_url"]   = $this->getReturnUrl();
         $params["purchase_step"]        = "payment-method";
 
+        if ($this->getConfigData('demo_mode')) {
+            $params["demo"] = "Y";
+        }
+
         return $params;
     }
 

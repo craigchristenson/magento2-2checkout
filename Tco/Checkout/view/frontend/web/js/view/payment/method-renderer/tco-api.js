@@ -1,143 +1,94 @@
 define(
     [
-        'underscore',
+        'Magento_Checkout/js/model/quote',
         'jquery',
         'Magento_Payment/js/view/payment/cc-form',
         'Magento_Checkout/js/action/set-billing-address',
-        'Tco_Checkout/js/action/place-order',
         'mage/translate',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Customer/js/model/customer',
-        'tco/token'
-    ],
-    function (_, $, Component, setBillingAddressAction, placeOrderAction, $t, additionalValidators, customer) {
-
+        'payJsExternal',
+        'Magento_Checkout/js/model/full-screen-loader',
+        'domReady!' // awaits for DOM to be loaded
+    ], function (quote, $, Component, setBillingAddressAction, $t, payJsExternal, fullScreenLoader) {
         'use strict';
+
+        const sellerId = window.checkoutConfig.payment.tco_api.sellerId;
+        let jsPaymentClient = new payJsExternal,
+            language = window.navigator.languages ? window.navigator.languages[1] : 'en',
+            tco_component;
+        jsPaymentClient.setup.setMerchant(sellerId);
+        jsPaymentClient.setup.setLanguage(language);
+        tco_component = jsPaymentClient.components.create('card');
+        setTimeout(function () {
+            tco_component.mount('#card-element-tco');
+            $('#two-co-iframe').css('min-height', '200px');
+        }, 300);
 
         return Component.extend({
             defaults: {
-                template: 'Tco_Checkout/payment/cc-form',
-                paymentToken: '',
-                setStoreCc: false
+                template: 'Tco_Checkout/payment/cc-form'
             },
-            initObservable: function () {
-                this._super()
-                    .observe([
-                        'creditCardType',
-                        'creditCardExpYear',
-                        'creditCardExpMonth',
-                        'creditCardNumber',
-                        'creditCardVerificationNumber',
-                        'selectedCardType'
-                    ]);
-                return this;
-            },
-            setPlaceOrderHandler: function(handler) {
-                this.placeOrderHandler = handler;
-            },
-            setValidateHandler: function(handler) {
-                this.validateHandler = handler;
-            },
-            getCode: function() {
+            getCode: function () {
                 return 'tco_api';
             },
-            getData: function() {
-                return {
-                    'method': this.item.method,
-                    additional_data: {
-                        'cc_type': this.creditCardType(),
-                        'token': this.paymentToken
-                    }
-                };
-            },
-            isActive: function() {
+            isActive: function () {
                 return true;
             },
-            /**
-             * @override
-             */
-            placeOrder: function(data, event) {
-                var self = this;
+            placeOrder: function (data, event) {
+                event.preventDefault();
+                fullScreenLoader.startLoader();
+                let billingDetails = {name: document.querySelector('#name').value},
+                    settings = window.checkoutConfig.payment.tco_api,
+                    msg = document.getElementById('validation-message');
 
-                if (event) {
-                    event.preventDefault();
-                }
-
-                var sellerId = this.getSellerId();
-                var publishableKey = this.getPublishableKey();
-                var publicKeyType = this.getPublicKeyType();
-
-                if (this.validate() && additionalValidators.validate()) {
-                    this.isPlaceOrderActionAllowed(false);
-
-                    var setBillingInfo = setBillingAddressAction();
-                    setBillingInfo.done(function() {
-
-                        var args = {
-                            sellerId: sellerId,
-                            publishableKey: publishableKey,
-                            ccNo: self.creditCardNumber(),
-                            cvv: self.creditCardVerificationNumber(),
-                            expMonth: self.creditCardExpMonth(),
-                            expYear: self.creditCardExpYear()
-                        };
-
-                        TCO.loadPubKey(publicKeyType, function() {
-                            TCO.requestToken(function(data) {
-
-                                self.paymentToken = data.response.token.token;
-
-                                var placeOrder = placeOrderAction(self.getData(), true);
-
-                                $.when(placeOrder).fail(function(response) {
-                                    self.isPlaceOrderActionAllowed(true);
+                if (!billingDetails.name.length) {
+                    msg.style.display = 'block';
+                    return false;
+                } else {
+                    msg.style.display = 'none';
+                    this.selectPaymentMethod();
+                    let setBillingInfo = setBillingAddressAction();
+                    setBillingInfo.done(function () {
+                        jsPaymentClient.tokens.generate(tco_component, billingDetails).then((response) => {
+                            if (response.token) {
+                                let url = settings.placeOrder;
+                                $.ajax({
+                                    url: url,
+                                    type: 'post',
+                                    context: this,
+                                    data: {isAjax: 1, token: response.token, email: quote.guestEmail},
+                                    dataType: 'json',
+                                    success: function (response, data) {
+                                        window.location.replace(response.redirect);
+                                    },
+                                    error: function (response, data) {
+                                        console.error(response.responseJSON, data);
+                                        if (!response.responseJSON.status && response.responseJSON.message) {
+                                            alert(response.responseJSON.message);
+                                        } else {
+                                            alert(settings.processingError);
+                                        }
+                                    },
+                                    complete: function (response) {
+                                        fullScreenLoader.stopLoader();
+                                    }
                                 });
-                            }, function(data){
-                                return false;
-                            }, args);
+
+                            } else {
+                                alert(settings.processingError);
+                                fullScreenLoader.stopLoader();
+                                console.error('Token response is NULL');
+                            }
+                        }).catch((error) => {
+                            console.error(error);
+                            alert('An error has occurred, please try again later!');
+                            fullScreenLoader.stopLoader();
                         });
-
                     });
-
-                    return true;
-                }
-                return false;
-            },
-            getControllerName: function() {
-                return window.checkoutConfig.payment.iframe.controllerName[this.getCode()];
-            },
-            getPlaceOrderUrl: function() {
-                return window.checkoutConfig.payment.iframe.placeOrderUrl[this.getCode()];
-            },
-            context: function() {
-                return this;
-            },
-            getSellerId: function() {
-                return window.checkoutConfig.payment.tco_api.sellerId;
-            },
-            getPublishableKey: function() {
-                return window.checkoutConfig.payment.tco_api.publishableKey;
-            },
-            getPublicKeyType: function() {
-                return window.checkoutConfig.payment.tco_api.publicKeyType;
-            },
-            isShowLegend: function() {
-                return true;
-            },
-            validate: function () {
-                var form = 'form[data-role=tco-cc-form]';
-                var validate =  $(form).validation() && $(form).validation('isValid');
-                var cardNumber = Boolean($(form + ' #tco_api_cc_number').valid());
-                var expirationMonth = Boolean($(form + ' #tco_api_expiration').valid());
-                var expirationYear = Boolean($(form + ' #tco_api_expiration_yr').valid());
-                var cvv = Boolean($(form + ' #tco_api_cc_cid').valid());
-
-                if (!validate || !cardNumber || !expirationMonth || !expirationYear || !cvv) {
                     return false;
                 }
-
+            },
+            isShowLegend: function () {
                 return true;
             }
         });
-    }
-);
+    });

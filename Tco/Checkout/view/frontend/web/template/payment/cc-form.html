@@ -1,4 +1,5 @@
 <div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
@@ -13,129 +14,23 @@
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
-        <div class="payment-method-billing-address">
+        <div class="payment-method-billing-address" style="padding: 5px;border: 1px solid#DDD;background:#F4F4F4;">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+        <form type="post" id="payment-form" data-role="tco-cc-form">
+            <div class="form-group">
+                <label for="name" class="label control-label">Name</label>
+                <input type="text" id="name" class="field form-control">
+                <span id="validation-message">Cardholder name cannot be empty</span>
+            </div>
 
-        <form class="form" id="tco-cc-form" data-role="tco-cc-form" action="#" method="post" data-bind="mageInit: {
-            'transparent':{
-                'context': context(),
-                'controller': getControllerName(),
-                'orderSaveUrl':getPlaceOrderUrl(),
-            }, 'validation':[]}">
+            <div id="card-element-tco">
+                <!-- A TCO IFRAME will be inserted here. -->
+            </div>
 
-
-            <fieldset data-bind="attr: {class: 'fieldset payment items ccard ' + getCode(), id: 'payment_form_' + getCode()}">
-                <!-- ko if: (isShowLegend())-->
-                <legend class="legend">
-                    <span><!-- ko text: $t('Credit Card Information')--><!-- /ko --></span>
-                </legend><br />
-                <!-- /ko -->
-
-                <div class="field type required">
-                    <div class="control">
-                        <input type="hidden"
-                               name="payment[cc_type]"
-                               class="input-text"
-                               value=""
-                               data-bind="attr: {id: getCode() + '_cc_type', 'data-container': getCode() + '-cc-type'},
-                           value: creditCardType
-                           ">
-                    </div>
-                </div>
-                <div class="field number required">
-                    <label data-bind="attr: {for: getCode() + '_cc_number'}" class="label">
-                        <span><!-- ko text: $t('Credit Card Number')--><!-- /ko --></span>
-                    </label>
-                    <div class="control">
-                        <input type="number" class="input-text" value="" id="tco_api_cc_number"
-                               data-encrypted-name="number"
-                               data-bind="attr: {
-                                            autocomplete: off,
-                                            id: getCode() + '_cc_number',
-                                            title: $t('Credit Card Number'),
-                                            'data-container': getCode() + '-cc-number',
-                                            'data-validate': JSON.stringify({'required-number':true, 'validate-card-type':getCcAvailableTypesValues(), 'validate-card-number':'#' + getCode() + '_cc_type', 'validate-cc-type':'#' + getCode() + '_cc_type'})},
-                                      enable: isActive($parents),
-                                      value: creditCardNumber,
-                                      valueUpdate: 'keyup' "/>
-                    </div>
-                </div>
-                <div class="field date required" data-bind="attr: {id: getCode() + '_cc_type_exp_div'}">
-                    <label data-bind="attr: {for: getCode() + '_expiration'}" class="label">
-                        <span><!-- ko text: $t('Expiration Date')--><!-- /ko --></span>
-                    </label>
-                    <div class="control">
-                        <div class="fields group group-2">
-                            <div class="field no-label month">
-                                <div class="control">
-                                    <select  class="select select-month" id="tco_api_expiration"
-                                             data-encrypted-name="expiryMonth"
-                                             data-bind="attr: {id: getCode() + '_expiration', 'data-container': getCode() + '-cc-month', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
-                                                    enable: isActive($parents),
-                                                    options: getCcMonthsValues(),
-                                                    optionsValue: 'value',
-                                                    optionsText: 'month',
-                                                    optionsCaption: $t('Month'),
-                                                    value: creditCardExpMonth"
-                                             data-validate="{required:true}">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="field no-label year">
-                                <div class="control">
-                                    <select class="select select-year" id="tco_api_expiration_yr"
-                                            data-encrypted-name="expiryYear"
-                                            data-bind="attr: {id: getCode() + '_expiration_yr', 'data-container': getCode() + '-cc-year', 'data-validate': JSON.stringify({required:true})},
-                                                   enable: isActive($parents),
-                                                   options: getCcYearsValues(),
-                                                   optionsValue: 'value',
-                                                   optionsText: 'year',
-                                                   optionsCaption: $t('Year'),
-                                                   value: creditCardExpYear"
-                                            data-validate="{required:true}">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- ko if: (hasVerification())-->
-                <div class="field cvv required" data-bind="attr: {id: getCode() + '_cc_type_cvv_div'}">
-                    <label data-bind="attr: {for: getCode() + '_cc_cid'}" class="label">
-                        <span><!-- ko text: $t('Card Verification Number')--><!-- /ko --></span>
-                    </label>
-                    <div class="control _with-tooltip">
-                        <input type="number"
-                               autocomplete="off"
-                               class="input-text cvv"
-                               data-encrypted-name="cvc"
-                               value=""
-                               id="tco_api_cc_cid"
-                               data-bind="attr: {id: getCode() + '_cc_cid',
-                                title: $t('Card Verification Number'),
-                                'data-container': getCode() + '-cc-cvv',
-                                'data-validate': JSON.stringify({'required-number':true, 'validate-card-cvv':'#' + getCode() + '_cc_type'})},
-                                enable: isActive($parents),
-                                value: creditCardVerificationNumber"
-                               data-validate="{required:true}"/>
-                        <div class="field-tooltip toggle">
-                        <span class="field-tooltip-action action-cvv"
-                              tabindex="0"
-                              data-toggle="dropdown"
-                              data-bind="attr: {title: $t('What is this?')}, mageInit: {'dropdown':{'activeClass': '_active'}}">
-                            <span><!-- ko text: $t('What is this?')--><!-- /ko --></span>
-                        </span>
-                            <div class="field-tooltip-content"
-                                 data-target="dropdown"
-                                 data-bind="html: getCvvImageHtml()"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /ko -->
-            </fieldset>
+            <button class="btn btn-primary" type="submit" id="submitTCO" data-bind="click: placeOrder">Place order</button>
         </form>
 
         <div class="checkout-agreements-block">
@@ -143,20 +38,100 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button class="action primary checkout"
-                        type="submit"
-                        data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order')},
-                        enable: (getCode() == isChecked())
-                        css: {disabled: !isPlaceOrderActionAllowed()}
-                        "
-                        disabled>
-                    <span data-bind="text: $t('Place Order')"></span>
-                </button>
-            </div>
-        </div>
+
     </div>
 </div>
+<style>
+    #submitTCO:hover {
+        background: #5C8DF8;
+        border-color: #5C8DF8;
+    }
+
+    #submitTCO {
+        background: #3474FF;
+        color: #FFF;
+        padding: 10px 25px;
+        border-radius: 5px;
+        border: 1px solid #3474FF;
+        box-shadow: none;
+        font-weight: 400;
+    }
+
+
+    #payment-form {
+        font-family: Helvetica, sans-serif;
+        margin-top: 15px;
+        padding: 10px 15px;
+        border: 1px solid #DDD;
+        border-radius: 5px;
+        margin-left: 35px;
+    }
+
+    @media (max-width: 768px) {
+        #payment-form {
+            margin-left: 15px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        #payment-form {
+            padding: 10px;
+            margin-left: 0;
+            border: 0;
+            box-shadow: none;
+        }
+    }
+
+    #payment-form .form-group {
+        margin-bottom: 14px;
+        padding-right: 25px;
+    }
+
+    #payment-form .sp-methods {
+        padding-left: 0;
+    }
+
+    #payment-form .sp-methods .form-list {
+        padding-left: 0 !important;
+    }
+
+
+    #payment-form input {
+        overflow: visible;
+        margin: 0;
+        font-family: inherit;
+        display: block;
+        width: 100%;
+        height: 42px;
+        padding: 10px 12px;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 22px;
+        color: #313131;
+        background-color: #FFF;
+        background-clip: padding-box;
+        border: 1px solid #CBCBCB;
+        border-radius: 3px;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        outline: 0;
+    }
+
+    #payment-form label {
+        display: inline-block;
+        margin-bottom: 9px;
+        color: #313131;
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 17px;
+    }
+
+    #payment-form #validation-message {
+        color: #D9534F;
+        font-size: 10px;
+        font-style: italic;
+        margin-top: 6px;
+        margin-bottom: -5px;
+        line-height: 1;
+        display: none;
+    }
+</style>

@@ -22,8 +22,8 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $quoteRepository;
-    
+    protected $_quoteRepository;
+
     /**
      * @var \Psr\Log\LoggerInterface
      */
@@ -47,13 +47,22 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     /**
      * @var \Magento\Quote\Api\CartManagementInterface
      */
-    protected $cartManagement;
+    protected $_cartManagement;
 
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      */
-    protected $resultJsonFactory;
+    protected $_resultJsonFactory;
 
+    /**
+     * @var \Magento\Framework\Controller\Result\RedirectFactory $resultRedirectFactory
+     */
+    protected $_resultRedirectFactory;
+
+    /**
+     * @var \Tco\Checkout\Helper\Ipn
+     */
+    protected $_ipnHelper;
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
@@ -77,18 +86,23 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         \Tco\Checkout\Model\Checkout $paymentMethod,
         \Tco\Checkout\Helper\Checkout $checkoutHelper,
         \Magento\Quote\Api\CartManagementInterface $cartManagement,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        \Magento\Framework\Controller\Result\RedirectFactory $resultRedirectFactory,
+        \Tco\Checkout\Helper\Ipn $ipnHelper
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
-        $this->quoteRepository = $quoteRepository;
+        $this->_quoteRepository = $quoteRepository;
         $this->_orderFactory = $orderFactory;
         $this->_paymentMethod = $paymentMethod;
         $this->_checkoutHelper = $checkoutHelper;
-        $this->cartManagement = $cartManagement;
-        $this->resultJsonFactory = $resultJsonFactory;
+        $this->_cartManagement = $cartManagement;
+        $this->_resultJsonFactory = $resultJsonFactory;
         $this->_logger = $logger;
+        $this->_resultRedirectFactory = $resultRedirectFactory;
         parent::__construct($context);
+
+        $this->_ipnHelper = $ipnHelper;
     }
 
     /**
@@ -127,14 +141,15 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
     /**
      * Get order object
      *
+     * @param $order_id
+     *
      * @return \Magento\Sales\Model\Order
      */
-    protected function getOrderById($order_id)
+    protected function getOrderByIncrementId($order_increment_id)
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $order = $objectManager->get('Magento\Sales\Model\Order');
-        $order_info = $order->loadByIncrementId($order_id);
-        return $order_info;
+        $order = $objectManager->get(\Magento\Sales\Model\Order::class);
+        return $order->loadByIncrementId($order_increment_id);
     }
 
     /**

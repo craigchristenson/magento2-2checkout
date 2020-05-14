@@ -10,19 +10,19 @@ $orderStatus = $payment->getAdditionalInformation('tco_order_status');
 <?php if (!empty($orderNumber)): ?>
     <br/>
     <div class="admin__page-section-item-title">
-        <span class="title"><?php echo $block->escapeHtml(__('2Checkout Order Details')); ?></span>
+        <span class="title"><?= $block->escapeHtml(__('2Checkout Order Details')); ?></span>
     </div>
 
     <div class="admin__page-section-item-content">
         <div class="order-payment-additional">
-            <?php if(!empty($orderNumber)): ?>
-                <?php echo $block->escapeHtml(__('Order Number')); ?>:
-                <?php echo $block->escapeHtml($orderNumber); ?>
+            <?php if (!empty($orderNumber)): ?>
+                <?= $block->escapeHtml(__('Order Number')); ?>:
+                <?= $block->escapeHtml($orderNumber); ?>
                 </br>
             <?php endif; ?>
-            <?php if(!empty($orderStatus)): ?>
-                <?php echo $block->escapeHtml(__('Order Status')); ?>:
-                <?php echo $block->escapeHtml($orderStatus); ?>
+            <?php if (!empty($orderStatus)): ?>
+                <?= $block->escapeHtml(__('Order Status')); ?>:
+                <?= $block->escapeHtml($orderStatus); ?>
                 </br>
             <?php endif; ?>
         </div>

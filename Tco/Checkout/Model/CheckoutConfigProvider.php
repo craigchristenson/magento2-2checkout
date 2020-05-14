@@ -22,7 +22,8 @@ class CheckoutConfigProvider implements ConfigProviderInterface
         return $this->method->isAvailable() ? [
             'payment' => [
                 'tco_checkout' => [
-                    'redirectUrl' => $this->method->getRedirectUrl()
+                    'redirectUrl' => $this->method->getRedirectUrl(),
+                    'refProcessUrl' => $this->method->getRefProcessUrl()
                 ]
             ]
         ] : [];
@@ -31,5 +32,10 @@ class CheckoutConfigProvider implements ConfigProviderInterface
     protected function getRedirectUrl()
     {
         return $this->method->getRedirectUrl();
+    }
+
+    protected function getRefProcessUrl()
+    {
+        return $this->method->getRefProcessUrl();
     }
 }

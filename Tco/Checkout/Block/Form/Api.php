@@ -37,5 +37,4 @@ class Api extends \Magento\Payment\Block\Form\Cc
         $this->_appState = $context->getAppState();
         $this->_checkoutSession = $checkoutSession;
     }
-
 }

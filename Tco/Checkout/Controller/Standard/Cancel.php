@@ -13,5 +13,4 @@ class Cancel extends \Tco\Checkout\Controller\Checkout
             $this->getCheckoutHelper()->getUrl('checkout')
         );
     }
-
 }
